@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  nama      String
+  email     String    @unique
+  password  String
+  role      Role      @default(PELANGGAN)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  pesanan   Pesanan[]
+
+  @@map("users")
+}
+
+model Kategori {
+  id        Int      @id @default(autoincrement())
+  nama      String   @unique
+  deskripsi String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  menu      Menu[]
+
+  @@map("kategori")
+}
+
+model Menu {
+  id           Int           @id @default(autoincrement())
+  nama         String
+  deskripsi    String?
+  harga        Float
+  gambar       String?
+  tersedia     Boolean       @default(true)
+  kategoriId   Int
+  kategori     Kategori      @relation(fields: [kategoriId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  pesananItem  PesananItem[]
+
+  @@map("menu")
+}
+
+model Pesanan {
+  id          Int           @id @default(autoincrement())
+  noMeja      Int
+  status      StatusPesanan @default(PENDING)
+  totalHarga  Float
+  catatan     String?
+  userId      Int?
+  user        User?         @relation(fields: [userId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  items       PesananItem[]
+
+  @@map("pesanan")
+}
+
+model PesananItem {
+  id        Int     @id @default(autoincrement())
+  jumlah    Int
+  harga     Float
+  catatan   String?
+  pesananId Int
+  pesanan   Pesanan @relation(fields: [pesananId], references: [id], onDelete: Cascade)
+  menuId    Int
+  menu      Menu    @relation(fields: [menuId], references: [id])
+
+  @@map("pesanan_item")
+}
+
+enum Role {
+  ADMIN
+  PELANGGAN
+}
+
+enum StatusPesanan {
+  PENDING
+  DIPROSES
+  SELESAI
+  DIBATALKAN
+}
