@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
 import { CartProvider } from './hooks/useCart';
+import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import MenuPage from './pages/MenuPage';
@@ -14,7 +15,7 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[#0a0a0f]">
           <Navbar />
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -25,6 +26,7 @@ export default function App() {
             <Route path="/pesanan-saya" element={<PesananSayaPage />} />
             <Route path="/admin" element={<AdminPage />} />
           </Routes>
+          <Toaster position="bottom-right" />
         </div>
       </CartProvider>
     </AuthProvider>
