@@ -7,7 +7,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://baggy-dab-tabloid.ngrok-free.dev',
+        target: 'http://localhost:3000',
         changeOrigin: true,
       },
     },
