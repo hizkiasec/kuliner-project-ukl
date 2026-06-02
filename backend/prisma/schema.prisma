@@ -36,7 +36,7 @@ model Kategori {
 
 model Menu {
   id           Int           @id @default(autoincrement())
-  nama         String
+  nama         String        @unique
   deskripsi    String?
   harga        Float
   gambar       String?

@@ -30,6 +30,7 @@ export class PesananController {
     return this.pesananService.findAll(status);
   }
 
+  // PENTING: route 'saya' harus SEBELUM ':id'
   @Get('saya')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -44,10 +45,15 @@ export class PesananController {
     return this.pesananService.findOne(id);
   }
 
+  // FIX: Tambahkan JwtAuthGuard agar req.user tidak undefined
+  // Tanpa ini, pesanan dibuat dengan userId: null sehingga
+  // tidak bisa ditemukan di endpoint GET /pesanan/saya
   @Post()
-  @ApiOperation({ summary: 'Buat pesanan baru (bisa tanpa login)' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Buat pesanan baru (harus login)' })
   create(@Body() dto: CreatePesananDto, @Request() req) {
-    const userId = req.user?.id;
+    const userId = req.user.id;
     return this.pesananService.create(dto, userId);
   }
 

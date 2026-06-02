@@ -59,7 +59,12 @@ async function main() {
   ];
 
   for (const m of menuList) {
-    await prisma.menu.create({ data: m });
+    // Gunakan upsert berdasarkan nama agar tidak duplikat saat seed ulang
+    await prisma.menu.upsert({
+      where: { nama: m.nama },
+      update: {},
+      create: m,
+    });
   }
   console.log('Menu seeded');
 
