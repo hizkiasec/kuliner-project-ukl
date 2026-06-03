@@ -13,6 +13,9 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { KategoriService } from './kategori.service';
 import { CreateKategoriDto, UpdateKategoriDto } from './kategori.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '@prisma/client';
 
 @ApiTags('Kategori')
 @Controller('kategori')
@@ -32,25 +35,28 @@ export class KategoriController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Tambah kategori baru (admin)' })
+  @ApiOperation({ summary: 'Tambah kategori baru (admin only)' })
   create(@Body() dto: CreateKategoriDto) {
     return this.kategoriService.create(dto);
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update kategori (admin)' })
+  @ApiOperation({ summary: 'Update kategori (admin only)' })
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateKategoriDto) {
     return this.kategoriService.update(id, dto);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Hapus kategori (admin)' })
+  @ApiOperation({ summary: 'Hapus kategori (admin only)' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.kategoriService.remove(id);
   }

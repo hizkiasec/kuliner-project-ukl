@@ -1,15 +1,31 @@
 import { useState } from 'react';
 import { useCart } from '../hooks/useCart';
+import { useAuth } from '../hooks/useAuth';
 import { pesananApi } from '../services/api';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 export default function KeranjangPage() {
   const { items, removeItem, updateJumlah, clearCart, total } = useCart();
+  const { user } = useAuth();
   const [noMeja, setNoMeja] = useState('');
   const [catatan, setCatatan] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // FIX: Guard - arahkan ke login jika belum login
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center pt-20">
+        <div className="text-center animate-fade-up">
+          <div className="text-6xl mb-6">🔒</div>
+          <h2 className="font-display text-2xl font-bold text-white mb-3">Login Dulu Ya</h2>
+          <p className="text-[#7a7a8c] mb-8">Kamu perlu login untuk melakukan pemesanan</p>
+          <Link to="/login" className="btn-gold px-8 py-3.5 rounded-2xl text-sm font-semibold inline-block">Login</Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleOrder = async () => {
     if (!noMeja) { toast.error('Masukkan nomor meja dulu'); return; }
@@ -61,25 +77,17 @@ export default function KeranjangPage() {
           <div className="lg:col-span-3 space-y-3">
             {items.map((item) => (
               <div key={item.menuId} className="menu-card rounded-2xl p-4 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[#1c1c27] flex items-center justify-center text-xl flex-shrink-0">
-                  🍽️
-                </div>
+                <div className="w-12 h-12 rounded-xl bg-[#1c1c27] flex items-center justify-center text-xl flex-shrink-0">🍽️</div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-white text-sm truncate">{item.nama}</p>
-                  <p className="text-[#f5a623] text-xs font-semibold mt-0.5">
-                    Rp {item.harga.toLocaleString('id-ID')}
-                  </p>
+                  <p className="text-[#f5a623] text-xs font-semibold mt-0.5">Rp {item.harga.toLocaleString('id-ID')}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <button
-                    onClick={() => updateJumlah(item.menuId, item.jumlah - 1)}
-                    className="w-7 h-7 rounded-full bg-[#1c1c27] hover:bg-[#252535] text-white font-bold flex items-center justify-center transition-colors"
-                  >−</button>
+                  <button onClick={() => updateJumlah(item.menuId, item.jumlah - 1)}
+                    className="w-7 h-7 rounded-full bg-[#1c1c27] hover:bg-[#252535] text-white font-bold flex items-center justify-center transition-colors">−</button>
                   <span className="w-6 text-center text-sm font-semibold text-white">{item.jumlah}</span>
-                  <button
-                    onClick={() => updateJumlah(item.menuId, item.jumlah + 1)}
-                    className="w-7 h-7 rounded-full bg-[#1c1c27] hover:bg-[#252535] text-white font-bold flex items-center justify-center transition-colors"
-                  >+</button>
+                  <button onClick={() => updateJumlah(item.menuId, item.jumlah + 1)}
+                    className="w-7 h-7 rounded-full bg-[#1c1c27] hover:bg-[#252535] text-white font-bold flex items-center justify-center transition-colors">+</button>
                 </div>
                 <p className="text-white font-semibold text-sm w-20 text-right flex-shrink-0">
                   Rp {(item.harga * item.jumlah).toLocaleString('id-ID')}
@@ -103,25 +111,15 @@ export default function KeranjangPage() {
                   <label className="block text-xs font-medium text-[#7a7a8c] mb-2 uppercase tracking-wider">
                     Nomor Meja <span className="text-[#f87171]">*</span>
                   </label>
-                  <input
-                    type="number"
-                    value={noMeja}
-                    onChange={e => setNoMeja(e.target.value)}
-                    placeholder="Contoh: 5"
-                    min={1}
-                    className="input-dark w-full px-4 py-2.5 rounded-xl text-sm"
-                  />
+                  <input type="number" value={noMeja} onChange={e => setNoMeja(e.target.value)}
+                    placeholder="Contoh: 5" min={1}
+                    className="input-dark w-full px-4 py-2.5 rounded-xl text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#7a7a8c] mb-2 uppercase tracking-wider">
-                    Catatan
-                  </label>
-                  <textarea
-                    value={catatan}
-                    onChange={e => setCatatan(e.target.value)}
+                  <label className="block text-xs font-medium text-[#7a7a8c] mb-2 uppercase tracking-wider">Catatan</label>
+                  <textarea value={catatan} onChange={e => setCatatan(e.target.value)}
                     placeholder="Tidak pedas, tambah nasi..."
-                    className="input-dark w-full px-4 py-2.5 rounded-xl text-sm h-20 resize-none"
-                  />
+                    className="input-dark w-full px-4 py-2.5 rounded-xl text-sm h-20 resize-none" />
                 </div>
               </div>
 
@@ -141,11 +139,8 @@ export default function KeranjangPage() {
                 <span className="text-xl font-bold gradient-text">Rp {total.toLocaleString('id-ID')}</span>
               </div>
 
-              <button
-                onClick={handleOrder}
-                disabled={loading}
-                className="btn-gold w-full py-3.5 rounded-xl font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <button onClick={handleOrder} disabled={loading}
+                className="btn-gold w-full py-3.5 rounded-xl font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
